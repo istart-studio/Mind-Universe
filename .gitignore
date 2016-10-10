@@ -1,0 +1,14 @@
+# Created by .ignore support plugin (hsz.mobi)
+.idea/IStar.iml
+.idea/compiler.xml
+.idea/copyright/
+.idea/misc.xml
+.idea/modules.xml
+.idea/workspace.xml
+Web/app.js
+Web/bin/
+Web/node_modules/
+Web/package.json
+Web/public/
+Web/routes/
+Web/views/
