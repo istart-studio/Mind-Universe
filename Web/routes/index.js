@@ -10,4 +10,9 @@ router.get('/sphere', function(req, res, next) {
     res.render('sphere', { title: 'Express' });
 });
 
+router.get('/planet', function(req, res, next) {
+    res.render('planet', { title: 'Express' });
+});
+
+
 module.exports = router;
