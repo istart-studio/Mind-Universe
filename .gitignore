@@ -1,6 +1,9 @@
 # 构建生成的数据文件
 src/data/
 
+# 文档目录
+doc/
+
 # 系统文件
 .DS_Store
 .DS_Store?
