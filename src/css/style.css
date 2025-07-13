@@ -5,7 +5,7 @@ html, body {
 body {
   background-color: #000000;
   margin: 0;
-  font-family: Helvetica, sans-serif;;
+  font-family: "Microsoft YaHei", "SimHei", "Arial Unicode MS", Helvetica, sans-serif;
   overflow: hidden;
 }
 
@@ -18,7 +18,7 @@ a {
   width: 100%;
   color: #ffffff;
   padding: 5px;
-  font-family: Monospace;
+  font-family: "Microsoft YaHei", "SimHei", Monospace;
   font-size: 13px;
   font-weight: bold;
   text-align: center;
@@ -32,6 +32,25 @@ a {
   text-align: center;
 }
 
+/* 3D星球标签样式 */
+.planet-label {
+  color: white !important;
+  font-family: "Microsoft YaHei", "SimHei", "Arial Unicode MS", Arial, sans-serif !important;
+  font-size: 16px !important;
+  font-weight: bold !important;
+  text-align: center !important;
+  background: rgba(0,0,0,0.8) !important;
+  padding: 8px 12px !important;
+  border-radius: 20px !important;
+  pointer-events: none !important;
+  white-space: nowrap !important;
+  user-select: none !important;
+  text-rendering: optimizeLegibility !important;
+  -webkit-font-smoothing: antialiased !important;
+  -moz-osx-font-smoothing: grayscale !important;
+}
+
+/* 原有元素样式保留，用于向后兼容 */
 .element {
   width: 120px;
   height: 160px;
@@ -74,6 +93,116 @@ a {
   color: rgba(127,255,255,0.75);
 }
 
+/* 保留的星球元素样式（备用） */
+.planet-element {
+  width: 180px;
+  height: 220px;
+  box-shadow: 0px 0px 15px rgba(0,255,255,0.6);
+  border: 2px solid rgba(127,255,255,0.4);
+  border-radius: 10px;
+  text-align: center;
+  cursor: pointer;
+  position: relative;
+  background: linear-gradient(45deg, rgba(0,127,127,0.3), rgba(0,255,255,0.1));
+  transition: all 0.3s ease;
+  font-family: "Microsoft YaHei", "SimHei", "Arial Unicode MS", Arial, sans-serif;
+}
+
+.planet-element:hover {
+  box-shadow: 0px 0px 25px rgba(0,255,255,0.9);
+  border: 2px solid rgba(127,255,255,0.8);
+  transform: scale(1.05);
+  background: linear-gradient(45deg, rgba(0,127,127,0.5), rgba(0,255,255,0.2));
+}
+
+.planet-element .planet-title {
+  position: absolute;
+  top: 20px;
+  left: 10px;
+  right: 10px;
+  font-size: 16px;
+  font-weight: bold;
+  color: rgba(255,255,255,0.9);
+  text-shadow: 0 0 8px rgba(0,255,255,0.8);
+  word-wrap: break-word;
+  line-height: 1.2;
+}
+
+.planet-element .planet-icon {
+  position: absolute;
+  top: 60px;
+  left: 0;
+  right: 0;
+  font-size: 80px;
+  color: rgba(255,255,255,0.8);
+  text-shadow: 0 0 15px rgba(0,255,255,0.9);
+  filter: drop-shadow(0 0 10px rgba(0,255,255,0.6));
+}
+
+.planet-element .planet-count {
+  position: absolute;
+  bottom: 20px;
+  left: 10px;
+  right: 10px;
+  font-size: 14px;
+  color: rgba(127,255,255,0.8);
+  background: rgba(0,0,0,0.3);
+  padding: 5px;
+  border-radius: 5px;
+}
+
+/* 文章元素样式 */
+.article-element {
+  width: 140px;
+  height: 100px;
+  box-shadow: 0px 0px 10px rgba(255,0,255,0.5);
+  border: 1px solid rgba(255,127,255,0.4);
+  border-radius: 8px;
+  text-align: center;
+  cursor: pointer;
+  position: relative;
+  background: linear-gradient(45deg, rgba(127,0,127,0.3), rgba(255,0,255,0.1));
+  transition: all 0.3s ease;
+  font-family: "Microsoft YaHei", "SimHei", "Arial Unicode MS", Arial, sans-serif;
+}
+
+.article-element:hover {
+  box-shadow: 0px 0px 20px rgba(255,0,255,0.8);
+  border: 1px solid rgba(255,127,255,0.8);
+  transform: scale(1.1);
+  background: linear-gradient(45deg, rgba(127,0,127,0.5), rgba(255,0,255,0.2));
+}
+
+.article-element .article-title {
+  position: absolute;
+  top: 10px;
+  left: 8px;
+  right: 8px;
+  font-size: 12px;
+  font-weight: bold;
+  color: rgba(255,255,255,0.9);
+  text-shadow: 0 0 6px rgba(255,0,255,0.8);
+  word-wrap: break-word;
+  line-height: 1.1;
+  max-height: 50px;
+  overflow: hidden;
+}
+
+.article-element .article-directory {
+  position: absolute;
+  bottom: 8px;
+  left: 8px;
+  right: 8px;
+  font-size: 10px;
+  color: rgba(255,127,255,0.7);
+  background: rgba(0,0,0,0.3);
+  padding: 2px 4px;
+  border-radius: 3px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
 button {
   color: rgba(127,255,255,0.75);
   background: transparent;
@@ -81,6 +210,7 @@ button {
   border: 0px;
   padding: 5px 10px;
   cursor: pointer;
+  font-family: "Microsoft YaHei", "SimHei", "Arial Unicode MS", Arial, sans-serif;
 }
 button:hover {
   background-color: rgba(0,255,255,0.5);
@@ -88,4 +218,71 @@ button:hover {
 button:active {
   color: #000000;
   background-color: rgba(0,255,255,0.75);
+}
+
+/* 文章详情视图样式 */
+.article-detail-view {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: #000000;
+  color: #ffffff;
+  z-index: 1000;
+  overflow-y: auto;
+  font-family: "Microsoft YaHei", "SimHei", "Arial Unicode MS", Helvetica, sans-serif;
+}
+
+.article-header {
+  position: sticky;
+  top: 0;
+  background: rgba(0,0,0,0.9);
+  padding: 20px;
+  border-bottom: 2px solid rgba(0,255,255,0.3);
+  backdrop-filter: blur(10px);
+}
+
+.article-header h1 {
+  margin: 0 0 15px 0;
+  color: rgba(255,255,255,0.95);
+  text-shadow: 0 0 10px rgba(0,255,255,0.8);
+  font-size: 24px;
+  word-wrap: break-word;
+}
+
+.article-meta {
+  margin-bottom: 15px;
+  font-size: 14px;
+  color: rgba(127,255,255,0.8);
+}
+
+.article-meta span {
+  margin-right: 20px;
+  padding: 5px 10px;
+  background: rgba(0,127,127,0.2);
+  border-radius: 5px;
+  border: 1px solid rgba(0,255,255,0.3);
+}
+
+.article-actions button {
+  margin-right: 10px;
+  padding: 8px 16px;
+  font-size: 14px;
+}
+
+.article-content {
+  padding: 20px;
+  line-height: 1.8;
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+.article-content pre {
+  background: rgba(0,127,127,0.1);
+  border: 1px solid rgba(0,255,255,0.3);
+  border-radius: 5px;
+  padding: 15px;
+  overflow-x: auto;
+  color: rgba(255,255,255,0.9);
 }
