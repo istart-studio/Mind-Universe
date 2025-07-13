@@ -6,17 +6,21 @@
     <title>文章宇宙 - MIND UNIVERSE</title>
     <link rel="stylesheet" href="css/style.css">
 
+    <script type="importmap">
+    {
+        "imports": {
+            "three": "https://cdn.jsdelivr.net/npm/three@0.178.0/build/three.module.js",
+            "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.178.0/examples/jsm/"
+        }
+    }
+    </script>
     <script src="js/tween.min.js"></script>
-    <script src="js/three.min.js"></script>
-
-    <script src="js/TrackballControls.js"></script>
-    <script src="js/CSS3DRenderer.js"></script>
 </head>
 <body>
 <div id="container">
 </div>
 <div id="info"></div>
 </body>
-<script src="js/universeRender.js"></script>
+<script type="module" src="js/universeRender.js"></script>
 
 </html>

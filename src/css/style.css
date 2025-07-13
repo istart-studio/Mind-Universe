@@ -203,6 +203,37 @@ a {
   text-overflow: ellipsis;
 }
 
+/* 悬停效果 - 使用不冲突的属性 */
+.article-element.article-hover {
+  box-shadow: 0px 0px 25px rgba(255,0,255,0.9) !important;
+  border: 2px solid rgba(255,127,255,0.9) !important;
+  background: linear-gradient(45deg, rgba(127,0,127,0.7), rgba(255,0,255,0.3)) !important;
+}
+
+/* 装饰卡片样式 */
+.decorative-element {
+  width: 100px;
+  height: 100px;
+  border-radius: 50%;
+  text-align: center;
+  cursor: default;
+  position: relative;
+  transition: all 0.3s ease;
+  font-family: "Microsoft YaHei", "SimHei", "Arial Unicode MS", Arial, sans-serif;
+  opacity: 0.7;
+}
+
+.decorative-element:hover {
+  opacity: 0.9;
+  transform: scale(1.05);
+}
+
+.decorative-symbol {
+  font-weight: bold;
+  user-select: none;
+  pointer-events: none;
+}
+
 button {
   color: rgba(127,255,255,0.75);
   background: transparent;

@@ -3,6 +3,11 @@
  * 纯前端版本 - 使用最新Three.js API
  */
 
+// ES模块导入
+import * as THREE from 'three';
+import { CSS3DRenderer, CSS3DObject } from 'three/addons/renderers/CSS3DRenderer.js';
+import { TrackballControls } from 'three/addons/controls/TrackballControls.js';
+
 // 全局变量
 var camera, scene, renderer, cssRenderer;
 var controls;
@@ -85,7 +90,7 @@ function init() {
     renderer.setClearColor(0x0a0a2e); // 深蓝色背景，不是纯黑
 
     // 创建CSS3D渲染器
-    cssRenderer = new THREE.CSS3DRenderer();
+    cssRenderer = new CSS3DRenderer();
     cssRenderer.setSize(window.innerWidth, window.innerHeight);
     cssRenderer.domElement.style.position = 'absolute';
     cssRenderer.domElement.style.top = 0;
@@ -96,7 +101,7 @@ function init() {
     container.appendChild(cssRenderer.domElement);
 
     // 轨道控制器
-    controls = new THREE.TrackballControls(camera, renderer.domElement);
+    controls = new TrackballControls(camera, renderer.domElement);
     controls.rotateSpeed = 0.8;
     controls.zoomSpeed = 1.2;
     controls.panSpeed = 0.8;
@@ -649,64 +654,138 @@ function createPlanetView() {
         return;
     }
     
-    currentPlanetArticles.forEach(function(article, index) {
-        console.log('创建文章元素:', article.title, 'position:', article.position);
+    // 计算需要的总卡片数量以形成完整球面
+    var minCards = 24; // 最少24个卡片形成球面
+    var totalCards = Math.max(currentPlanetArticles.length, minCards);
+    var decorativeCards = totalCards - currentPlanetArticles.length;
+    
+    // 创建所有卡片（真实文章 + 装饰卡片）
+    var allItems = [];
+    
+    // 添加真实文章
+    currentPlanetArticles.forEach(function(article) {
+        allItems.push({ type: 'article', data: article });
+    });
+    
+    // 添加装饰卡片
+    var decorativeColors = [
+        'rgba(0,127,255,0.3)',    // 蓝色
+        'rgba(0,255,127,0.3)',    // 绿色  
+        'rgba(255,127,0,0.3)',    // 橙色
+        'rgba(127,0,255,0.3)',    // 紫色
+        'rgba(255,255,0,0.3)',    // 黄色
+        'rgba(0,255,255,0.3)',    // 青色
+    ];
+    
+    for (var i = 0; i < decorativeCards; i++) {
+        allItems.push({ 
+            type: 'decorative', 
+            color: decorativeColors[i % decorativeColors.length],
+            symbol: ['✦', '✧', '✩', '✪', '✫', '✬', '✭', '✮', '✯', '✰'][i % 10]
+        });
+    }
+    
+    console.log('总计卡片数量:', allItems.length, '(文章:', currentPlanetArticles.length, '装饰:', decorativeCards, ')');
+    
+    // 创建所有卡片
+    allItems.forEach(function(item, index) {
+        var element, object;
         
-        var element = createArticleElement(article);
-        var object = new THREE.CSS3DObject(element);
+        if (item.type === 'article') {
+            // 创建文章卡片
+            console.log('创建文章元素:', item.data.title);
+            element = createArticleElement(item.data);
+            object = new CSS3DObject(element);
+            
+            // 添加用户数据
+            object.userData = { article: item.data, type: 'article' };
+            
+            // 添加点击事件
+            element.addEventListener('click', function(e) {
+                console.log('文章点击事件触发:', item.data.title);
+                e.stopPropagation();
+                e.preventDefault();
+                viewArticle(item.data);
+            });
+            
+            // 添加悬停效果
+            element.addEventListener('mouseenter', function() {
+                element.classList.add('article-hover');
+            });
+            
+            element.addEventListener('mouseleave', function() {
+                element.classList.remove('article-hover');
+            });
+        } else {
+            // 创建装饰卡片
+            element = createDecorativeElement(item.color, item.symbol);
+            object = new CSS3DObject(element);
+            
+            // 添加用户数据
+            object.userData = { type: 'decorative' };
+        }
         
-        // 设置随机初始位置
+        // 设置随机初始位置（远离相机）
         object.position.x = Math.random() * 4000 - 2000;
         object.position.y = Math.random() * 4000 - 2000;
-        object.position.z = Math.random() * 4000 - 2000;
-        
-        // 添加用户数据
-        object.userData = { article: article, type: 'article' };
-        
-        // 添加点击事件
-        element.addEventListener('click', function() {
-            viewArticle(article);
-        });
+        object.position.z = Math.random() * 2000 - 3000;
         
         scene.add(object);
         objects.push(object);
         
-        // 使用球面分布或预计算位置
+        // 球面分布计算
         var target = new THREE.Object3D();
+        var radius = 800;
         
-        if (article.position) {
-            // 使用文章数据中的位置，但调整到合适的尺度
-            target.position.x = article.position.x;
-            target.position.y = article.position.y;
-            target.position.z = article.position.z - 500; // 稍微调整Z位置
-        } else {
-            // 如果没有位置数据，使用球面分布
-            var radius = 800;
-            var phi = Math.acos(-1 + (2 * index) / currentPlanetArticles.length);
-            var theta = Math.sqrt(currentPlanetArticles.length * Math.PI) * phi;
-            
-            target.position.x = radius * Math.cos(theta) * Math.sin(phi);
-            target.position.y = radius * Math.sin(theta) * Math.sin(phi);
-            target.position.z = radius * Math.cos(phi) - 500;
-        }
+        // 使用黄金螺旋分布
+        var goldenAngle = Math.PI * (3 - Math.sqrt(5));
         
-        console.log('文章目标位置:', target.position);
+        var y = 1 - (index / (allItems.length - 1)) * 2; // y从1到-1
+        var radiusAtY = Math.sqrt(1 - y * y);
+        var theta = goldenAngle * index;
         
-        var vector = new THREE.Vector3();
-        vector.copy(target.position).multiplyScalar(-2);
-        target.lookAt(vector);
+        var x = Math.cos(theta) * radiusAtY;
+        var z = Math.sin(theta) * radiusAtY;
+        
+        // 应用半径
+        target.position.x = x * radius;
+        target.position.y = y * radius;
+        target.position.z = z * radius;
+        
+        // 让卡片朝向球心
+        target.lookAt(new THREE.Vector3(0, 0, 0));
         
         targets.planet.push(target);
     });
     
-    console.log('星球视图创建完成，对象数量:', objects.length, '目标数量:', targets.planet.length);
+    console.log('球面构建完成！');
+    console.log('- 总卡片数:', objects.length);
+    console.log('- 文章卡片:', currentPlanetArticles.length);
+    console.log('- 装饰卡片:', decorativeCards);
+    console.log('- 目标位置:', targets.planet.length);
     
     // 设置当前视图并执行动画
     currentView = 'planet';
+    
+    // 调整相机位置以更好地查看球面排列的文章
+    new TWEEN.Tween(camera.position)
+        .to({ x: 0, y: 0, z: 1200 }, 2000) // 适当距离观察球面
+        .easing(TWEEN.Easing.Exponential.InOut)
+        .start();
+    
+    // 调试信息
+    console.log('开始球面变换动画，targets数量:', targets.planet.length);
+    console.log('TWEEN可用:', typeof TWEEN !== 'undefined');
+    
     transform(targets.planet, 2000);
     
     // 更新UI信息
-    updateInfo('🪐 ' + currentPlanet.name + ' - ' + currentPlanetArticles.length + ' 篇文章 | 点击文章查看详情 | <button onclick="backToUniverse()">返回宇宙</button>');
+    var infoText = '🪐 ' + currentPlanet.name + ' - ' + currentPlanetArticles.length + ' 篇文章';
+    if (decorativeCards > 0) {
+        infoText += ' + ' + decorativeCards + ' 个装饰球面';
+    }
+    infoText += ' | 点击文章卡片查看详情 | <button onclick="backToUniverse()">返回宇宙</button>';
+    updateInfo(infoText);
 }
 
 /**
@@ -728,6 +807,30 @@ function createArticleElement(article) {
     directory.className = 'article-directory';
     directory.textContent = article.directory;
     element.appendChild(directory);
+    
+    return element;
+}
+
+/**
+ * 创建装饰性HTML元素
+ */
+function createDecorativeElement(color, symbol) {
+    var element = document.createElement('div');
+    element.className = 'decorative-element';
+    element.style.backgroundColor = color;
+    element.style.border = '1px solid ' + color.replace('0.3', '0.6');
+    element.style.boxShadow = '0px 0px 8px ' + color.replace('0.3', '0.4');
+    
+    // 装饰符号
+    var symbolDiv = document.createElement('div');
+    symbolDiv.className = 'decorative-symbol';
+    symbolDiv.textContent = symbol;
+    symbolDiv.style.fontSize = '40px';
+    symbolDiv.style.color = color.replace('0.3', '0.8');
+    symbolDiv.style.textAlign = 'center';
+    symbolDiv.style.lineHeight = '100px';
+    symbolDiv.style.textShadow = '0 0 10px ' + color.replace('0.3', '0.9');
+    element.appendChild(symbolDiv);
     
     return element;
 }
@@ -854,20 +957,57 @@ function clearScene() {
  * 执行3D变换动画
  */
 function transform(targets, duration) {
+    console.log('Transform开始执行，objects数量:', objects.length, 'targets数量:', targets.length);
+    
+    if (!targets || targets.length === 0) {
+        console.error('targets数组为空或未定义');
+        return;
+    }
+    
+    if (objects.length !== targets.length) {
+        console.error('objects和targets数量不匹配:', objects.length, targets.length);
+        return;
+    }
+    
     TWEEN.removeAll();
     
     for (var i = 0; i < objects.length; i++) {
         var object = objects[i];
         var target = targets[i];
         
-        new TWEEN.Tween(object.position)
+        if (!target || !target.position) {
+            console.error('target', i, '无效:', target);
+            continue;
+        }
+        
+        console.log('对象', i, '从', 
+            {x: object.position.x, y: object.position.y, z: object.position.z},
+            '移动到',
+            {x: target.position.x, y: target.position.y, z: target.position.z}
+        );
+        
+        var tween = new TWEEN.Tween(object.position)
             .to({
                 x: target.position.x,
                 y: target.position.y,
                 z: target.position.z
-            }, Math.random() * duration + duration)
+            }, duration + Math.random() * 1000) // 统一基础时间，减少随机性
             .easing(TWEEN.Easing.Exponential.InOut)
+            .onStart(function() {
+                console.log('动画开始 - 对象', i);
+            })
+            .onUpdate(function() {
+                // 每隔一段时间输出位置信息
+                if (Math.random() < 0.01) { // 1% 概率输出，避免过多日志
+                    console.log('对象', i, '当前位置:', {x: object.position.x, y: object.position.y, z: object.position.z});
+                }
+            })
+            .onComplete(function() {
+                console.log('动画完成 - 对象', i, '最终位置:', {x: object.position.x, y: object.position.y, z: object.position.z});
+            })
             .start();
+            
+        console.log('TWEEN', i, '已启动:', tween);
         
         new TWEEN.Tween(object.rotation)
             .to({
@@ -882,7 +1022,23 @@ function transform(targets, duration) {
     new TWEEN.Tween(this)
         .to({}, duration * 2)
         .onUpdate(render)
+        .onComplete(function() {
+            console.log('主动画序列完成');
+        })
         .start();
+        
+    // 备用方案：如果TWEEN没有工作，3秒后直接设置位置
+    setTimeout(function() {
+        console.log('执行备用方案 - 直接设置位置');
+        for (var i = 0; i < objects.length; i++) {
+            if (targets[i] && targets[i].position) {
+                objects[i].position.copy(targets[i].position);
+                objects[i].rotation.copy(targets[i].rotation);
+                console.log('直接设置对象', i, '到位置:', targets[i].position);
+            }
+        }
+        render(); // 强制渲染
+    }, 5000);
 }
 
 /**
